@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🔍 Objeto Misterioso com Palavra Animada no Topo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik&display=swap" rel="stylesheet" />
+  <style>
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+      font-family: 'Rubik', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(to right, #00103c, #0a3990, #4fa1eb, #a0d8f4);
+      background-size: 400% 400%;
+      animation: moverFundo 15s ease infinite;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 80px; /* espaço pro topo fixo */
+      color: #333;
+    }
+
+    @keyframes moverFundo {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    /* Palavra animada fixa no topo */
+    #palavra-animada {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-weight: 700;
+      font-size: 2.5rem;
+      user-select: none;
+      text-shadow:
+        0 0 5px rgba(0,0,0,0.7),
+        0 2px 5px rgba(0,0,0,0.5);
+      overflow: hidden;
+      z-index: 1000;
+    }
+
+    .fade-in-out {
+      animation: fadeInOut 4s ease-in-out forwards;
+      position: absolute;
+      width: 100%;
+      left: 0;
+      top: 0;
+      text-align: center;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(20px); }
+      10% { opacity: 1; transform: translateY(0); }
+      90% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-20px); }
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 400px;
+      text-align: center;
+      animation: aparecer 1s ease-in-out;
+      color: #333;
+      margin-top: 20px;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 15px;
+      color: #222;
+    }
+
+    .dica {
+      font-size: 18px;
+      color: #555;
+      margin-bottom: 20px;
+      transition: all 0.3s ease-in-out;
+      min-height: 70px;
+      font-style: italic;
+      line-height: 1.3;
+      user-select: none;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      outline: none;
+      margin-bottom: 15px;
+      transition: 0.3s;
+    }
+
+    input:focus {
+      border-color: #6366f1;
+      background-color: #f0f2ff;
+    }
+
+    button {
+      padding: 12px 20px;
+      background-color: #6366f1;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      margin: 5px;
+      user-select: none;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #4338ca;
+    }
+
+    button:disabled {
+      background-color: #a0a0a0;
+      cursor: default;
+    }
+
+    .resposta {
+      margin-top: 20px;
+      font-weight: bold;
+      font-size: 18px;
+      color: #444;
+      min-height: 24px;
+      user-select: none;
+    }
+
+    @keyframes aparecer {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @media (max-width: 420px) {
+      #palavra-animada {
+        font-size: 1.8rem;
+        height: 50px;
+      }
+
+      .container {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Palavra animada fixa no topo -->
+  <div id="palavra-animada"></div>
+
+  <!-- Jogo -->
+  <div class="container">
+    <h1>🔍 Objeto Misterioso</h1>
+    <p class="dica" id="dica">🕵️ Tente adivinhar o objeto oculto!</p>
+    <input type="text" id="palpite" placeholder="Digite seu palpite aqui..." autocomplete="off" />
+    <div>
+      <button onclick="verificarPalpite()" id="btnEnviar">Enviar</button>
+      <button onclick="reiniciarJogo()" id="btnReiniciar" style="display: none;">🔄 Jogar de Novo</button>
+    </div>
+    <p id="resposta" class="resposta"></p>
+  </div>
+
+  <script>
+    const objetos = [
+      { nome: "caderno", dicas: [
+        "Guarda mundos em branco.",
+        "Companheiro silencioso da mente.",
+        "Folhas, não de árvore, mas de pensamento.",
+        "Não fala, mas registra histórias.",
+        "Tem capa, mas não veste.",
+        "Suas páginas são portais.",
+        "Palco de ideias efêmeras.",
+        "Fabrica sonhos tangíveis."
+      ]},
+      { nome: "lápis", dicas: [
+        "Viajante da ponta afiada.",
+        "Apaga erros sem mágoa.",
+        "A madeira que escreve a alma.",
+        "Fino arqueiro do papel.",
+        "Tem alma de grafite.",
+        "Pode ser apontado, nunca ferido.",
+        "Companheiro da criação bruta.",
+        "Desenha linhas invisíveis."
+      ]},
+      { nome: "mochila", dicas: [
+        "Vai às costas todo dia.",
+        "Guarda livros, lanche e até segredos.",
+        "Tem zíperes e bolsos por dentro e por fora.",
+        "Companheira de escolas e viagens.",
+        "Carrega o peso da rotina.",
+        "Faz barulho quando se move.",
+        "Costuma ter duas alças.",
+        "Às vezes tem chaveiros pendurados."
+      ]},
+      { nome: "teclado", dicas: [
+        "Você o pressiona para escrever.",
+        "É essencial em computadores.",
+        "Tem letras, números e símbolos.",
+        "Grita cliques com seus dedos.",
+        "Fica embaixo do monitor.",
+        "Pode ser mecânico ou de membrana.",
+        "Às vezes vem com luzes coloridas.",
+        "Faz parte de um combo com o mouse."
+      ]},
+      { nome: "garrafa", dicas: [
+        "Guarda líquidos em seu interior.",
+        "Tem tampa para não derramar.",
+        "Companheira de atletas e estudantes.",
+        "Faz barulho quando cheia e balança.",
+        "Pode ser plástica ou de inox.",
+        "Cabe em suportes e mochilas.",
+        "É usada para se hidratar.",
+        "Ajuda o corpo a não secar."
+      ]},
+      { nome: "fone de ouvido", dicas: [
+        "Leva som direto ao ouvido.",
+        "É usado para escutar música.",
+        "Tem fio ou bluetooth.",
+        "Te isola do mundo ao redor.",
+        "Às vezes tem microfone.",
+        "Pode ser intra-auricular ou de arco.",
+        "Fica pendurado no pescoço ou nas orelhas.",
+        "Te acompanha em viagens sonoras."
+      ]},
+      { nome: "relógio", dicas: [
+        "Mestre do tempo cativo.",
+        "Dança entre ponteiros que nunca param.",
+        "Guardiã dos segundos perdidos.",
+        "Conta histórias invisíveis.",
+        "Tem rosto, mas não olhos.",
+        "Nunca se cansa de girar.",
+        "Tic-tac é seu idioma.",
+        "Marca a passagem sem sentir."
+      ]},
+      { nome: "espelho", dicas: [
+        "Mostra quem você é por fora.",
+        "Fica na parede ou em bolsas.",
+        "Reflete luz e formas.",
+        "Ajuda na maquiagem.",
+        "Pode ter moldura ou não.",
+        "É feito de vidro.",
+        "Não mente, só devolve.",
+        "Você se vê nele todo dia."
+      ]},
+      { nome: "lanterna", dicas: [
+        "Ilumina a escuridão.",
+        "Funciona com pilha ou recarregável.",
+        "Ajuda em apagões e acampamentos.",
+        "Faz foco de luz direcionado.",
+        "Cabe na mão ou no bolso.",
+        "Pode piscar em modo emergência.",
+        "Tem botão de ligar.",
+        "Às vezes fica no celular também."
+      ]},
+      { nome: "controle remoto", dicas: [
+        "Comanda algo à distância.",
+        "Tem botões e pilhas.",
+        "É usado em TVs, som, ar-condicionado.",
+        "Evita levantar do sofá.",
+        "Pode trocar canais.",
+        "Fica perdido com frequência.",
+        "Tem botão vermelho.",
+        "Geralmente mora na sala."
+      ]},
+      { nome: "tesoura", dicas: [
+        "Corta o que quiser (quase).",
+        "Tem duas lâminas afiadas.",
+        "É usada para papel e tecido.",
+        "Pode ter ponta redonda ou fina.",
+        "É amiga da arte e da escola.",
+        "Precisa de cuidado nas mãos.",
+        "Abre e fecha com os dedos.",
+        "Clica e faz 'tec'."
+      ]},
+      { nome: "caneca", dicas: [
+        "Guarda chá, café ou chocolate.",
+        "Tem alça pra segurar.",
+        "Pode ter frases engraçadas.",
+        "Feita de cerâmica ou vidro.",
+        "Esquenta por dentro.",
+        "Geralmente está na cozinha.",
+        "Usada em cafés da manhã.",
+        "Algumas têm tampa também."
+      ]},
+      { nome: "almofada", dicas: [
+        "Amacia tua cabeça ou costas.",
+        "Fica no sofá ou na cama.",
+        "Tem capa colorida.",
+        "Às vezes usada em brigas divertidas.",
+        "É decorativa e confortável.",
+        "Geralmente feita de tecido.",
+        "Recheada com espuma ou algodão.",
+        "Ajuda no descanso."
+      ]},
+      { nome: "óculos", dicas: [
+        "Melhora a visão ou protege do sol.",
+        "Fica sobre o nariz.",
+        "Tem duas lentes.",
+        "Pode ser de grau ou escuro.",
+        "Às vezes embaça.",
+        "Companheiro de leitura.",
+        "Pode ser fashion.",
+        "Mora num estojo quando não usado."
+      ]},
+      { nome: "abajur", dicas: [
+        "Ilumina suavemente o ambiente.",
+        "Fica ao lado da cama.",
+        "Tem cúpula ou cobertura.",
+        "Funciona com interruptor.",
+        "Ideal pra leitura noturna.",
+        "Pode ser moderno ou retrô.",
+        "Geralmente pequeno.",
+        "Traz calma ao quarto."
+      ]}
+    ];
+
+    // Palavra animada fixa no topo
+    const palavraAnimadaEl = document.getElementById('palavra-animada');
+    let palavraIndex = 0;
+
+    function mostrarPalavra() {
+      const span = document.createElement('span');
+      span.textContent = capitalize(objetos[palavraIndex].nome);
+      span.classList.add('fade-in-out');
+
+      palavraAnimadaEl.innerHTML = '';
+      palavraAnimadaEl.appendChild(span);
+
+      palavraIndex++;
+      if (palavraIndex >= objetos.length) palavraIndex = 0;
+
+      setTimeout(mostrarPalavra, 4000);
+    }
+
+    function capitalize(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    mostrarPalavra();
+
+    // Jogo
+    let objetoAtual;
+    let dicaIndex = 0;
+
+    function escolherNovoObjeto() {
+      objetoAtual = objetos[Math.floor(Math.random() * objetos.length)];
+      dicaIndex = 0;
+      document.getElementById("dica").textContent = "🕵️ Tente adivinhar o objeto oculto!";
+      document.getElementById("resposta").textContent = "";
+      const input = document.getElementById("palpite");
+      input.value = "";
+      input.disabled = false;
+      document.getElementById("btnReiniciar").style.display = "none";
+      document.getElementById("btnEnviar").disabled = false;
+      input.focus();
+    }
+
+    function verificarPalpite() {
+      const entrada = document.getElementById("palpite").value.trim().toLowerCase();
+      const dicaElemento = document.getElementById("dica");
+      const respostaElemento = document.getElementById("resposta");
+
+      if (!entrada) {
+        respostaElemento.textContent = "Digite algo antes de enviar.";
+        return;
+      }
+
+      if (entrada === objetoAtual.nome) {
+        respostaElemento.textContent = "✅ Acertou! Preparando próximo objeto...";
+        document.getElementById("palpite").disabled = true;
+        document.getElementById("btnEnviar").disabled = true;
+        setTimeout(() => {
+          escolherNovoObjeto();
+          respostaElemento.textContent = "";
+        }, 2500);
+      } else {
+        if (dicaIndex < objetoAtual.dicas.length) {
+          dicaElemento.textContent = `💡 Dica ${dicaIndex + 1}: ${objetoAtual.dicas[dicaIndex]}`;
+          respostaElemento.textContent = "❌ Tente novamente.";
+          dicaIndex++;
+        } else {
+          dicaElemento.textContent = "⛔ Fim das dicas!";
+          respostaElemento.textContent = `O objeto era: "${objetoAtual.nome}".`;
+          document.getElementById("btnReiniciar").style.display = "inline-block";
+          document.getElementById("palpite").disabled = true;
+          document.getElementById("btnEnviar").disabled = true;
+        }
+      }
+      document.getElementById("palpite").value = "";
+      document.getElementById("palpite").focus();
+    }
+
+    function reiniciarJogo() {
+      escolherNovoObjeto();
+      document.getElementById("resposta").textContent = "";
+    }
+
+    escolherNovoObjeto();
+  </script>
+</body>
+</html>
